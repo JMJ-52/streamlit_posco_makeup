@@ -1,6 +1,18 @@
-# OpenAI Streamlit 챗봇
+# 화장품 영업 데이터 분석 Streamlit 앱
 
-`gpt-4o-mini`를 사용하는 간단한 스트리밍 챗봇입니다.
+챗봇 모델은 `gpt-4o-mini`로 고정되어 있습니다.
+
+## Streamlit Community Cloud Secrets
+
+앱의 Settings → Secrets에 다음 내용을 등록하세요.
+
+```toml
+OPENAI_API_KEY = "sk-..."
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = "587"
+SMTP_USER = "보내는메일@gmail.com"
+SMTP_PASSWORD = "앱비밀번호"
+```
 
 ## 로컬 실행
 
