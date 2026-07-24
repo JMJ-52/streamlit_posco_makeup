@@ -75,9 +75,20 @@ with tab1:
         if st.button("메일 발송"):
             try:
                 msg = EmailMessage(); msg["Subject"] = subject; msg["From"] = secret("SMTP_USER"); msg["To"] = to; msg.set_content(body); msg.add_attachment(st.session_state["processed"], maintype="application", subtype="vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename="화장품_영업_데이터_가공본.xlsx")
-                with smtplib.SMTP(secret("SMTP_HOST", "smtp.gmail.com"), int(secret("SMTP_PORT", "587"))) as smtp: smtp.starttls(); smtp.login(secret("SMTP_USER"), secret("SMTP_PASSWORD")); smtp.send_message(msg)
+                smtp_host = secret("SMTP_HOST", "smtp.gmail.com").strip()
+                smtp_port = int(str(secret("SMTP_PORT", "587")).strip())
+                smtp_user = secret("SMTP_USER").strip()
+                smtp_password = secret("SMTP_PASSWORD").strip().replace(" ", "")
+                if smtp_port == 465:
+                    with smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=30) as smtp:
+                        smtp.login(smtp_user, smtp_password); smtp.send_message(msg)
+                else:
+                    with smtplib.SMTP(smtp_host, smtp_port, timeout=30) as smtp:
+                        smtp.ehlo(); smtp.starttls(); smtp.ehlo(); smtp.login(smtp_user, smtp_password); smtp.send_message(msg)
                 st.success("메일을 발송했습니다.")
-            except Exception as e: st.error(f"발송 실패: {e}. SMTP_USER/SMTP_PASSWORD 등 설정을 확인하세요.")
+            except smtplib.SMTPAuthenticationError:
+                st.error("Gmail 인증에 실패했습니다. 일반 Gmail 비밀번호가 아닌 16자리 앱 비밀번호를 SMTP_PASSWORD에 입력했는지 확인하세요.")
+            except Exception as e: st.error(f"발송 실패: {e}. SMTP 설정을 확인하세요.")
 with tab2:
     if "context" not in st.session_state: st.info("먼저 엑셀 파일을 업로드하세요.")
     else:
